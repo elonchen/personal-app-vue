@@ -21,6 +21,46 @@ var autoOpenBrowser = !!config.dev.autoOpenBrowser
 var proxyTable = config.dev.proxyTable
 
 var app = express()
+
+//-------------------------------------------------------------------------------------------------------------
+//自行定义路由接口来返回JSON数据
+
+const appDate = require('../data.json')
+
+const seller = appDate.seller;
+
+const goods = appDate.goods;
+
+const ratings = appDate.ratings;
+
+const apiRoutes = express.Router();
+
+apiRoutes.get('/seller',(req,res)=>{
+    res.json({
+      errno:0,
+      data : seller
+    })
+})
+
+apiRoutes.get('/goods',(req,res)=>{
+    res.json({
+      errno:0,
+      data : goods
+    })
+})
+
+apiRoutes.get('/ratings',(req,res)=>{
+    res.json({
+      errno:0,
+      data : ratings
+    })
+})
+
+app.use('/api',apiRoutes);
+
+
+//-------------------------------------------------------------------------------------------------------------
+
 var compiler = webpack(webpackConfig)
 
 var devMiddleware = require('webpack-dev-middleware')(compiler, {
