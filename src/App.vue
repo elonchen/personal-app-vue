@@ -47,7 +47,6 @@
 
 <style lang="scss" rel="stylesheet/scss">
   @import './common/scss/mixin.scss';
-
     .tab{
       display:flex;
       width:100%;
