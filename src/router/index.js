@@ -8,7 +8,7 @@ import seller from 'components/seller/seller.vue'
 Vue.use(Router)
 
 const routes = [
-  {path:'/',redirect: '/good',name:'goods',component: goods},
+  { path:'/',redirect: '/good',name:'goods',component: goods},
   { path:'/good', name:'goods',component: goods },
   { path:'/ratings', name:'ratings',component: ratings },
   { path:'/seller', name:'seller',component: seller }

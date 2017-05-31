@@ -1,7 +1,7 @@
   <template>
   <div>
-      <e-header></e-header> 
-    <div class="tab">
+      <e-header :seller="seller"></e-header> 
+    <div class="tab border-1px">
        <div class="tab-item">
           <router-link to="/good">商品</router-link>
         </div>
@@ -21,8 +21,23 @@
 <script>
   import header from "./components/header/header.vue"
 
+  const ERR_OK = 0;
 
   export default {
+    data () {
+      return {
+        seller : {}
+      };
+    },
+
+    created () {
+      this.$http.get('/api/seller').then(res=>{
+        if(res.data.errno === ERR_OK){
+          this.seller = res.data.data;
+        }
+      })
+    },
+
     components:{
       'e-header' : header
     }
@@ -31,11 +46,14 @@
 </script>
 
 <style lang="scss" rel="stylesheet/scss">
+  @import './common/scss/mixin.scss';
+
     .tab{
       display:flex;
       width:100%;
       height:40px;
       line-height:40px;
+      @include border-1px(rgba(7,17,27,0.1));
       .tab-item{
         flex:1;
         text-align:center;
