@@ -1,8 +1,8 @@
 <template>
     <div class="goods">
-        <div class="menu-warpper">
+        <div class="menu-warpper" ref="meunWarpper">
             <ul>
-                <li v-for="item of goods" class="menu-item">
+                <li v-for="(item,index) of goods" class="menu-item" :class="{'current':currentIndex === index}" @click="selectMenu(index,$event)"> 
                     <span class="text">
                         <span v-show="item.type>-1" class="icon" :class="classMap[item.type]"></span>
                         {{item.name}}
@@ -10,9 +10,9 @@
                 </li>
             </ul>
         </div>
-        <div class="foods-warpper">
+        <div class="foods-warpper" ref="foodWarpper">
             <ul>
-                <li v-for="item of goods" class="food-list">
+                <li v-for="item of goods" class="food-list food-list-hook">
                     <h1 class="title"> {{item.name}} </h1>
                     <ul>
                         <li v-for="food of item.foods" class="food-item border-1px">
@@ -23,12 +23,10 @@
                                 <h2 class="name"> {{food.name}} </h2>
                                 <p class="desc"> {{food.description}} </p>
                                 <div class="extra">
-                                    <span class="count">月售 {{food.sellCount}} 份</span>
-                                    <span> 好评率 {{food.rating}}% </span>
+                                    <span class="count">月售 {{food.sellCount}} 份</span><span> 好评率 {{food.rating}}% </span>
                                 </div>
                                 <div class="price">
-                                    <span class="now">￥ {{food.price}} </span>
-                                    <span v-show="food.oldPrice" class="old">￥{{food.oldPrice}} </span>
+                                    <span class="now">￥ {{food.price}} </span><span v-show="food.oldPrice" class="old">￥{{food.oldPrice}} </span>
                                 </div>
                             </div>
                         </li>
@@ -40,12 +38,16 @@
 </template>
 
 <script>
+import BScroll from 'better-scroll';
+
 const ERR_OK = 0;
 
 export default {
   data () {
       return {
-          goods:[]
+          goods:[],
+          listHeight:[],
+          scrollY:0
       }
   },  
   props:{
@@ -53,15 +55,67 @@ export default {
           type:Object
       }
   },
+  computed:{
+      currentIndex () {
+        for(let i=0;i<this.listHeight.length;i++){
+            let height1 = this.listHeight[i];
+            let height2 = this.listHeight[i+1];
+            if(!height2 || (this.scrollY >= height1 && this.scrollY < height2) ){//因为最后一个i+1不存在，因此需要加上!height2进行判定
+                return i;
+            }
+        }
+        return 0;
+      }//计算出要高亮的index，即是要高亮的meun-warpper的index,也就是在那个高度区间
+  },
   created () {
       this.classMap = ['decrease','discount','special','invoice','guarantee'];//通过seller.supports[0].type映射对应的className
       this.$http.get('/api/goods').then(res=>{
           if(res.data.errno === ERR_OK){
             this.goods = res.data.data;
+            this.$nextTick(()=>{
+                this._initScroll();
+                this._calculateHeight();
+            })//因为重新渲染DOM是异步，因此需要使用$nextTick在下一个task来计算高度，初始化Better-scroll
           }else{
               console.log('has a error when get goods data');
           }
       })
+  },
+  methods :{
+    _initScroll () {
+        this.menuScroll = new BScroll(this.$refs.meunWarpper,{
+            bounce: true,
+            momentumLimitTime:200,
+            bounceTime: 600,
+            click:true 
+        })
+        this.foodScroll = new BScroll(this.$refs.foodWarpper,{
+            probeType:3,
+            bounce: true,
+            momentumLimitTime:200,
+            bounceTime: 300,
+        })        
+        this.foodScroll.on('scroll',(pos)=>{
+            this.scrollY = Math.abs(Math.round(pos.y));
+        })//Better-Sroll所携带事件，pos是Better-Scroll封装的对象
+    },//初始化Better-scroll
+    _calculateHeight () {
+        let foodList = this.$refs.foodWarpper.getElementsByClassName('food-list-hook');
+        let height = 0;
+        this.listHeight.push(height);
+        for(let i=0;i<foodList.length;i++){
+            height += foodList[i].clientHeight;
+            this.listHeight.push(height);
+        }
+    },//计算每个不同产品类型的高度，并且存进listHeight用来做映射
+    selectMenu (index,event) {
+        if(!event._constructed){
+            return;
+        }
+        let foodList = this.$refs.foodWarpper.getElementsByClassName('food-list-hook');
+        let el = foodList[index];
+        this.foodScroll.scrollToElement(el);
+    }
   }
 }
 
@@ -87,6 +141,16 @@ export default {
                 width:56px;
                 line-height:14px;
                 padding:0 12px;
+                &.current{
+                    position:relative;
+                    margin-top:-1px;
+                    z-index:10;
+                    background:#fff;
+                    font-weight:700;
+                    .text{
+                        @include border-none();
+                    }
+                }                
                 .icon{
                     display:inline-block;
                     vertical-align:top;
@@ -161,6 +225,7 @@ export default {
                     }
                     .desc{
                         margin-bottom:8px;
+                        line-height:12px;
                     }
                     .extra{
                         .count{
