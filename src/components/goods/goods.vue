@@ -13,20 +13,24 @@
         <div class="foods-warpper" ref="foodWarpper">
             <ul>
                 <li v-for="item of goods" class="food-list food-list-hook">
-                    <h1 class="title"> {{item.name}} </h1>
+                    <h1 class="title"> {{item.name}}</h1>
                     <ul>
                         <li v-for="food of item.foods" class="food-item border-1px">
                             <div class="icon">
                                 <img :src="food.icon" width="57" height="57">
                             </div>
                             <div class="content">
-                                <h2 class="name"> {{food.name}} </h2>
+                                <h2 class="name" @click="conso"> {{food.name}} </h2>
                                 <p class="desc"> {{food.description}} </p>
                                 <div class="extra">
                                     <span class="count">月售 {{food.sellCount}} 份</span><span> 好评率 {{food.rating}}% </span>
                                 </div>
                                 <div class="price">
                                     <span class="now">￥ {{food.price}} </span><span v-show="food.oldPrice" class="old">￥{{food.oldPrice}} </span>
+
+                                </div>
+                                <div class="cartcontrol-warpper">
+                                    <cartcontrol :food="food"></cartcontrol>
                                 </div>
                             </div>
                         </li>
@@ -34,11 +38,14 @@
                 </li>
             </ul>
         </div>    
+        <shopcart :deliveryPrice="seller.deliveryPrice" :minPrice="seller.minPrice" :select-foods="selectFoods"></shopcart>
     </div>
 </template>
 
 <script>
 import BScroll from 'better-scroll';
+import shopcart from 'components/shopcart/shopcart'
+import cartcontrol from 'components/cartcontrol/cartcontrol'
 
 const ERR_OK = 0;
 
@@ -65,7 +72,19 @@ export default {
             }
         }
         return 0;
-      }//计算出要高亮的index，即是要高亮的meun-warpper的index,也就是在那个高度区间
+      },//计算出要高亮的index，即是要高亮的meun-warpper的index,也就是在那个高度区间
+      selectFoods() {
+        let foods = [];
+        this.goods.forEach((good) => {
+          good.foods.forEach((food) => {
+            if (food.count) {
+              foods.push(food);
+            }
+          });
+        });
+        this.$store.commit('selectFoods',foods);//此计算属性，只是单纯将已经被选择的产品用vuex存起来，待需要使用时使用
+        return foods
+      }//发现一个坑，当计算属性没有被使用的时候，计算属性是不会主动执行，当计算属性被使用时，它才会随这依赖数据的改变而执行     
   },
   created () {
       this.classMap = ['decrease','discount','special','invoice','guarantee'];//通过seller.supports[0].type映射对应的className
@@ -91,6 +110,7 @@ export default {
         })
         this.foodScroll = new BScroll(this.$refs.foodWarpper,{
             probeType:3,
+            click:true ,
             bounce: true,
             momentumLimitTime:200,
             bounceTime: 300,
@@ -109,13 +129,21 @@ export default {
         }
     },//计算每个不同产品类型的高度，并且存进listHeight用来做映射
     selectMenu (index,event) {
-        if(!event._constructed){
+        if(!event._constructed){//event._constructed是Better-Scroll派发才会携带
             return;
-        }
+        }//因为使用了Better-Scroll，因此会导致在网页版的时候，点击事件是触发两次，一次是原生派发的，一次是Bette-Scroll派发的，因此需要过滤
         let foodList = this.$refs.foodWarpper.getElementsByClassName('food-list-hook');
         let el = foodList[index];
         this.foodScroll.scrollToElement(el);
-    }
+    },
+    conso () {
+        console.log(this.selectFoods);
+        console.log(this.$store.state.Selectfoods,1)
+    }//测试
+  },
+  components:{
+      shopcart,
+      cartcontrol
   }
 }
 
@@ -245,6 +273,11 @@ export default {
                             font-size:10px;
                             color:rgb(147,153,159);
                         }
+                    }
+                    .cartcontrol-warpper{
+                        position:absolute;
+                        right:0;
+                        bottom:12px;
                     }
                 }
             }

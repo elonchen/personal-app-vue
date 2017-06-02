@@ -5,14 +5,18 @@ import App from './App'
 import router from './router'
 import './common/scss/index.scss';
 import axios from 'axios';
+import store from './vuex/store'
+import Vuex from 'vuex'
+
 
 Vue.config.productionTip = false;
-
 Vue.prototype.$http = axios;
+Vue.use(Vuex)
 
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
+  store,
   router,
   template: '<App/>',
   components: { App }
