@@ -26,6 +26,14 @@ const store = new Vuex.Store({
     },
     selectFoods (state,foodsObj){
       state.Selectfoods = foodsObj;
+    },
+    empty (state) {
+      state.totalPrice = 0;
+      state.totalCount = 0;
+      state.Selectfoods.forEach(food=>{
+        food.count = 0;
+      })
+      state.Selectfoods = [];
     }
   }
 })
