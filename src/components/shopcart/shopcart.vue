@@ -40,7 +40,7 @@
                                     <span>￥{{food.price*food.count}}</span>
                                 </div>
                                 <div class="cartcontrol-warpper">
-                                    <cartcontrol :food="food"></cartcontrol>
+                                    <cartcontrol :food="food" @add="drop"></cartcontrol>
                                 </div>
                             </li>
                         </ul>
@@ -50,7 +50,7 @@
         </div>
     </div>
     <transition name="fade">
-        <div class="list-mask" v-show="listShow" @click="hideList"></div>  
+        <div class="list-mask" v-show="listShow" @click="drop"></div>  
     </transition>
   </div>  
 
@@ -144,6 +144,7 @@
     },
     methods : {
         drop (el) {
+            console.log(el);
             for (let i=0;i<this.balls.length;i++){//取得按钮的element，然后遍历
                 let ball = this.balls[i];
                 if(!ball.show){
