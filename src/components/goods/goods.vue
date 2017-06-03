@@ -20,7 +20,7 @@
                                 <img :src="food.icon" width="57" height="57">
                             </div>
                             <div class="content">
-                                <h2 class="name" @click="conso"> {{food.name}} </h2>
+                                <h2 class="name"> {{food.name}} </h2>
                                 <p class="desc"> {{food.description}} </p>
                                 <div class="extra">
                                     <span class="count">月售 {{food.sellCount}} 份</span><span> 好评率 {{food.rating}}% </span>
@@ -30,7 +30,7 @@
 
                                 </div>
                                 <div class="cartcontrol-warpper">
-                                    <cartcontrol :food="food"></cartcontrol>
+                                    <cartcontrol :food="food" @add="addFood"></cartcontrol>
                                 </div>
                             </div>
                         </li>
@@ -38,7 +38,7 @@
                 </li>
             </ul>
         </div>    
-        <shopcart :deliveryPrice="seller.deliveryPrice" :minPrice="seller.minPrice" :select-foods="selectFoods"></shopcart>
+        <shopcart :deliveryPrice="seller.deliveryPrice" :minPrice="seller.minPrice" :select-foods="selectFoods" ref="shopcart"></shopcart>
     </div>
 </template>
 
@@ -86,6 +86,20 @@ export default {
         return foods
       }//发现一个坑，当计算属性没有被使用的时候，计算属性是不会主动执行，当计算属性被使用时，它才会随这依赖数据的改变而执行     
   },
+//   watch : {
+//     goods : function () {
+//         let foods = [];
+//         this.goods.forEach((good) => {
+//           good.foods.forEach((food) => {
+//             if (food.count) {
+//               foods.push(food);
+//             }
+//           });
+//         });
+//         console.log(1)
+//         this.$store.commit('selectFoods',foods);       
+//     }
+//   },
   created () {
       this.classMap = ['decrease','discount','special','invoice','guarantee'];//通过seller.supports[0].type映射对应的className
       this.$http.get('/api/goods').then(res=>{
@@ -136,10 +150,13 @@ export default {
         let el = foodList[index];
         this.foodScroll.scrollToElement(el);
     },
-    conso () {
-        console.log(this.selectFoods);
-        console.log(this.$store.state.Selectfoods,1)
-    }//测试
+    addFood (tatget) {
+        this._drop(tatget);
+    },//小球效果：传递element
+    _drop (target) {
+        // console.log(target);
+        this.$refs.shopcart.drop(target);
+    }//小球效果：传递element作为参数付给shopcart组件的drop方法
   },
   components:{
       shopcart,

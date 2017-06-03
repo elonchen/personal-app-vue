@@ -38,7 +38,7 @@
                 this.$store.commit('addCount',1);
                 this.$store.commit('addPrice',price);
             }
-            console.log(2)
+            this.$emit('add',event.target);
         },
         decreaseCart(event){
             const {price} = this.food;
@@ -50,7 +50,6 @@
                 this.$store.commit('decreaseCount',1);
                 this.$store.commit('decreasePrice',price);
             }
-            console.log(3)
         }     
     }
   }
