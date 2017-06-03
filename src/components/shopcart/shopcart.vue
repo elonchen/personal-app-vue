@@ -49,8 +49,8 @@
               {
                 show:false
               }                                                        
-          ],
-          dropBalls :[]
+          ],//存储可以被开始动画的小球，false的才能开始将其转变为true开始动画！而transition动画只对v-if，v-show和v-for有效
+          dropBalls :[]//存储已经进入运动的小球，待小球运动完，将其style.display设置为none
       }
     },     
     props:{
@@ -90,30 +90,31 @@
     },
     methods : {
         drop (el) {
-            for (let i=0;i<this.balls.length;i++){
+            for (let i=0;i<this.balls.length;i++){//取得按钮的element，然后遍历
                 let ball = this.balls[i];
                 if(!ball.show){
-                    ball.show = true,
+                    ball.show = true,//当show设为true的时候，动画就开始了，步骤beforeDrop ==> dropping ==> afterDrop(通过JS动画钩子)
                     ball.el = el;
                     this.dropBalls.push(ball);
                     return;
                 }
             }
-        },
+        },//小球动画，存储取得的Element元素
         beforeDrop (el) {
             let count = this.balls.length;
             while (count--){
                 let ball = this.balls[count];
                 if(ball.show){
                     let rect = ball.el.getBoundingClientRect();//Element.getBoundingClientRect()方法返回元素的大小及其相对于视口的位置。
-                    console.log(rect,el);
-                    let x = rect.left - 32;
-                    let y = -(window.innerHeight - rect.top - 22);
+                    let x = rect.left - 36;//算出小球从哪个横坐标出发
+                    let y = -(window.innerHeight - rect.top - 36);//算出小球从那个纵坐标出发，哪位什么要用window.innerHeight减呢？
+                    //y坐标是相对于小球的位置，即是小球原来translate3d(0,0,0)的位置，因此需要用window.innerHeight-rect.top-36去得出，小球
+                    //原来的位置，到点击按钮的y坐标的距离。。
                     el.style.display = '';
-                    el.style.webkitTransform = `translate3d(0,${y}px,0)`;
+                    el.style.webkitTransform = `translate3d(0,${y}px,0)`;//兼容webkit渲染引擎，因为直接写transfrom，webkit引擎没有出现效果
                     el.style.transfrom = `translate3d(0,${y}px,0)`;
                     let inner = el.getElementsByClassName('inner-hook')[0];
-                    inner.style.webkitTransform = `translate3d(${x}px,0,0)`;
+                    inner.style.webkitTransform = `translate3d(${x}px,0,0)`;//兼容webkit渲染引擎，因为直接写transfrom，webkit引擎没有出现效果
                     inner.style.transfrom = `translate3d(${x}px,0,0)`;
                 }
             }
@@ -121,10 +122,10 @@
         dropping (el) {
             let rf = el.offsetHeight;//用来做浏览器重绘
             this.$nextTick(()=>{
-                    el.style.webkitTransform = `translate3d(0,0,0)`;
+                    el.style.webkitTransform = `translate3d(0,0,0)`;//兼容webkit渲染引擎，因为直接写transfrom，webkit引擎没有出现效果
                     el.style.transfrom = `translate3d(0,0,0)`;
                     let inner = el.getElementsByClassName('inner-hook')[0];
-                    inner.style.webkitTransform = `translate3d(0,0,0)`;
+                    inner.style.webkitTransform = `translate3d(0,0,0)`;//兼容webkit渲染引擎，因为直接写transfrom，webkit引擎没有出现效果
                     inner.style.transfrom = `translate3d(0,0,0)`;                
             })
         },
