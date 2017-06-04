@@ -50,7 +50,7 @@
         </div>
     </div>
     <transition name="fade">
-        <div class="list-mask" v-show="listShow" @click="drop"></div>  
+        <div class="list-mask" v-show="listShow" @click.stop.prevent="toggleList"></div>  
     </transition>
   </div>  
 
@@ -144,7 +144,7 @@
     },
     methods : {
         drop (el) {
-            console.log(el);
+            console.log(1);
             for (let i=0;i<this.balls.length;i++){//取得按钮的element，然后遍历
                 let ball = this.balls[i];
                 if(!ball.show){

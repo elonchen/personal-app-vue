@@ -24,8 +24,8 @@ const store = new Vuex.Store({
     decreaseCount (state,count){
       state.totalCount -= count;
     },
-    selectFoods (state,foodsObj){
-      state.Selectfoods = foodsObj;
+    selectFoods (state,foodsArr){
+      state.Selectfoods = foodsArr;
     },
     empty (state) {
       state.totalPrice = 0;
