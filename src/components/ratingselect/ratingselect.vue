@@ -57,7 +57,9 @@
       }
     },
     data () {
-      return {}
+      return {
+        
+      }
     },
     methods : {
       select(type,event){
