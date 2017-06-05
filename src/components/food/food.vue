@@ -33,7 +33,24 @@
         <split></split>
         <div class="rating">
             <h1 class="title">商品评价</h1>
-            <ratingselect :selectType="selectType" :onlyContent="onlyContent" :desc="desc" :ratings="food.ratings"></ratingselect>
+            <ratingselect :selectType="selectType" :onlyContent="onlyContent" :desc="desc" :ratings="food.ratings" @select="selectRating" @toggle="toggleContent">
+            </ratingselect>
+            <div class="rating-warpper">
+                <ul v-show="food.ratings && food.ratings.length"><!--当有评论时才会出现评论内容，即是评论框-->
+                    <li v-show="needShow(rating.rateType,rating.text)" v-for="rating in food.ratings" class="rating-item border-1px">
+                        <div class="user">
+                            <span class="name">{{rating.username}}</span>
+                            <img class="avatar" width="12" height="12" alt="" :src="rating.avatar">
+                        </div>
+                        <div class="time">{{rating.rateTime | formatDate}}</div>
+                        <p class="text">
+                            <span :class="{'icon-thumb_up':rating.rateType===0,'icon-thumb_down':rating.rateType===1}"></span>
+                            {{rating.text}}
+                        </p>
+                    </li>
+                </ul>
+                <div class="no-rating" v-show="!food.ratings || !food.ratings.length">暂无评价</div><!--当没有有评论时才会出现-->
+            </div>
         </div>
       </div>  
     </div>
@@ -46,6 +63,7 @@
   import ratingselect from 'components/ratingselect/ratingselect'
   import split from 'components/split/split'
   import Vue from 'vue';
+  import {formatDate} from '../../common/js/date.js';
 
   const POSITIVE = 0;
   const NEGATIVE = 1;
@@ -59,9 +77,9 @@
     },
     data () {
         return {
-            showFlag:false,
-            selectType:ALL,
-            onlyContent:true,
+            showFlag:false,//控制food组件的show和hide
+            selectType:ALL,//选择要看的评论的类型
+            onlyContent:true,//控制评论是只看内容还是看内容和评价
             desc:{
                 all:'全部',
                 positive:'推荐',
@@ -71,17 +89,15 @@
     },
     methods : {
         show () {
-            this.showFlag = true;
-            this.selectType = ALL;
-            this.onlyContent = true;
+            this.showFlag = true;//初始化showFlag
+            this.selectType = ALL;//初始化selectType
+            this.onlyContent = true;//初始化onlyContent
             this.$nextTick(() => {
                 if (!this.scroll) {
-                    console.log(this.$refs.food)
                     this.scroll = new BScroll(this.$refs.food, {
                     click: true
                     });
                 } else {
-                    console.log(this.scroll)
                     this.scroll.refresh();
                 }
             })
@@ -106,7 +122,35 @@
         },
         addFood (el) {
             this.$emit('add',el);
-        }//cartcontrol组件发射的事件通过food组件发射add事件给goods
+        },//cartcontrol组件发射的事件通过food组件发射add事件给goods
+        needShow(type,text){
+            if(this.onlyContent && !text){
+                return false;
+            }
+            if(this.selectType === ALL){
+                return true;
+            }else{
+                return type === this.selectType;
+            }
+        },
+        selectRating (type) {
+            this.selectType = type;
+            this.$nextTick(()=>{
+                this.scroll.refresh();
+            })
+        },
+        toggleContent (onlyContent) {
+            this.onlyContent = onlyContent;
+            this.$nextTick(()=>{
+                this.scroll.refresh();
+            })
+        }
+    },
+    filters:{
+        formatDate(time){
+            let date = new Date(time);
+            return formatDate(date,'yyyy-MM-dd hh:mm')//引入common模块的JS方法
+        }
     },
     components :{
         cartcontrol,
@@ -117,6 +161,8 @@
 </script>
 
 <style lang="scss" rel="stylesheet/scss">
+    @import '../../common/scss/mixin.scss';
+
     .food{
         position: fixed;
         left: 0;
@@ -245,6 +291,58 @@
                     font-size:14px;
                     color:rgb(7,17,27);
                     font-weight: 700;
+                }
+                .rating-warpper{
+                    padding:0 18px;
+                    .rating-item{
+                        position:relative;
+                        padding:16px 0;
+                        @include border-1px(rgba(7,17,27,0.1));
+                        .user{
+                            position:absolute;
+                            right:0;
+                            top:16px;
+                            line-height:12px;
+                            font-size:0;
+                            .name{
+                                display:inline-block;
+                                margin-right:6px;
+                                vertical-align:top;
+                                font-size:10px;
+                                color:rgb(147,153,159);
+                            }
+                            .avatar{
+                                border-radius:50%;
+                            }                            
+                        }
+                        .time{
+                            margin-bottom:6px;
+                            line-height:12px;
+                            font-size:10px;
+                            color:rgb(147,153,159);
+                        }
+                        .text{
+                            line-height:16px;
+                            font-size:12px;
+                            color:rgb(7,17,27);
+                            .icon-thumb_down,.icon-thumb_up{
+                                margin-right:4px;
+                                line-height:16px;
+                                font-size:12px;
+                            }
+                            .icon-thumb_down{
+                                color:rgb(0,160,220);
+                            }
+                            .icon-thumb_up{
+                                color:rgb(147,153,159);
+                            }
+                        }
+                    }
+                    .no-rating{
+                        padding:16px;
+                        font-size:12px;
+                        color:rgb(147,153,159);
+                    }
                 }
             }            
     }

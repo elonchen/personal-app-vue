@@ -49,11 +49,11 @@
         return this.ratings.filter(rating=>{
           return rating.rateType === POSITIVE;
         })
-      },
+      },//用来控制3个正方形小方块的是否出于active状态
       negative() {
         return this.ratings.filter(rating=>{
           return rating.rateType === NEGATIVE;
-        })
+        })//用来控制3个正方形小方块的是否出于active状态
       }
     },
     data () {
@@ -65,14 +65,14 @@
           return;
         }
         this.selectType = type;
-        this.$emit('ratingtype.select',type);
+        this.$emit('select',type);
       },
       toggleContent (event) {
         if(!event._constructed){
           return;
         }
         this.onlyContent = !this.onlyContent;
-        this.$emit('content.toggle',this.onlyContent);
+        this.$emit('toggle',this.onlyContent);
       }
     }
   }
