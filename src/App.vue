@@ -20,20 +20,22 @@
 
 <script>
   import header from "./components/header/header.vue"
-
+  import {urlParser} from 'common/js/util'
   const ERR_OK = 0;
 
   export default {
     data () {
       return {
-        seller : {}
+        seller : {
+          id:123
+        }
       };
     },
 
     created () {
-      this.$http.get('/api/seller').then(res=>{
+      this.$http.get(`/api/seller?id=12345`).then(res=>{
         if(res.data.errno === ERR_OK){
-          this.seller = res.data.data;
+          this.seller = Object.assign({},this.seller,res.data.data);
         }
       })
     },
