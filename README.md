@@ -19,8 +19,6 @@
 
 ![效果一](./static/img/ele1.gif)
 
-![效果二](./static/img/ele2.gif)
-
 <h2>运行</h2>
 </hr>
 
