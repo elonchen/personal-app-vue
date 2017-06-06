@@ -14,6 +14,10 @@
 <h4>scss个人喜好，个人比较喜欢使用scss风格的方式编写css</h4>
 </hr>
 
+<h2>效果图</h2>
+</hr>
+![效果一](./static/img/ele1.gif)
+![效果二](./static/img/ele2.gif)
 
 
 
